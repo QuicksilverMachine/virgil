@@ -1,0 +1,25 @@
+# macos
+.DS_Store
+
+# intellij
+*.iml
+.idea
+
+# build
+dist/
+build/
+*.pyc
+__pycache__
+*.egg-info/
+
+# mypy
+.mypy_cache
+
+# pytest
+.coverage
+.coverage.*
+.pytest_cache
+coverage_report/
+
+# pyenv
+.python-version
