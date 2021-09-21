@@ -27,6 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements-dev.txt
+          python setup.py develop
       - name: Test with pytest
         run: |
           flake8
