@@ -6,11 +6,6 @@ build-backend = "setuptools.build_meta"
 line-length = 100
 target-version = ['py39']
 
-[flake8]
-max-line-length = 100
-include = "virgil"
-exclude = ["virgil/__init__.py"]
-
 [tool.isort]
 profile = "black"
 line_length = 100
