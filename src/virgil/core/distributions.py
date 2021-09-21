@@ -13,6 +13,8 @@ class Distribution:
 
 def get_distributions():
     distributions = [Distribution(d) for d in MetadataPathFinder.find_distributions()]
+    result = []
     for distribution in distributions:
         if distribution.name not in IGNORE:
-            print(f"{distribution.name}=={distribution.version} ({distribution.requires})")
+            result.append(f"{distribution.name}=={distribution.version} ({distribution.requires})")
+    return result
