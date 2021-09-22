@@ -1,8 +1,3 @@
-CSI = "\033["
-OSC = "\033]"
-BEL = "\a"
-
-
 class Color:
     BLACK = 30
     RED = 31
@@ -14,18 +9,19 @@ class Color:
     WHITE = 37
     RESET = 39
 
-    @staticmethod
-    def code(color: str) -> str:
-        return f"{CSI}{color}m"
+
+def color_code(color: int) -> str:
+    csi = "\033["
+    return f"{csi}{color}m"
 
 
-DEFAULT_ERROR = Color.RED
-DEFAULT_SUCCESS = Color.GREEN
-DEFAULT_WARNING = Color.YELLOW
-DEFAULT_FOREGROUND = Color.RESET
+DEFAULT_ERROR = color_code(Color.RED)
+DEFAULT_SUCCESS = color_code(Color.GREEN)
+DEFAULT_WARNING = color_code(Color.YELLOW)
+DEFAULT_FOREGROUND = color_code(Color.RESET)
 
-DEFAULT_PACKAGE = Color.CYAN
-DEFAULT_REQUIREMENT = Color.MAGENTA
+DEFAULT_PACKAGE = color_code(Color.CYAN)
+DEFAULT_REQUIREMENT = color_code(Color.MAGENTA)
 
 
 def set_color(message: str, message_color: str, foreground_color: str) -> str:
@@ -35,4 +31,4 @@ def set_color(message: str, message_color: str, foreground_color: str) -> str:
     :param foreground_color: Color that the output will be reset to
     :return: Message wrapped in color characters
     """
-    return f"{Color.code(message_color)}{message}{Color.code(foreground_color)}"
+    return f"{message_color}{message}{foreground_color}"

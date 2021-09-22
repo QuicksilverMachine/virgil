@@ -1,0 +1,62 @@
+repos:
+  # Validate files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      # simple check that python files have valid syntax
+      - id: check-ast
+      # simple check that toml files have valid syntax
+      - id: check-toml
+      # simple check that yaml files have valid syntax
+      - id: check-yaml
+      # sort requirements files
+
+  # Python formatter
+  - repo: local
+    hooks:
+      - id: black
+        name: black
+        entry: black .
+        language: python
+        pass_filenames: false
+        always_run: true
+
+  # Style guide enforcement
+  - repo: local
+    hooks:
+      - id: flake8
+        name: flake8
+        entry: flake8
+        language: python
+        pass_filenames: false
+        always_run: true
+
+  # Sort imports
+  - repo: local
+    hooks:
+      - id: isort
+        name: isort
+        entry: isort
+        language: python
+        pass_filenames: false
+        always_run: true
+
+  # Typing
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: mypy src/virgil
+        language: python
+        pass_filenames: false
+        always_run: true
+
+  # Tests
+  - repo: local
+    hooks:
+      - id: pytest-check
+        name: pytest-check
+        entry: python -m pytest
+        language: system
+        pass_filenames: false
+        always_run: true
