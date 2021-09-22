@@ -1,5 +1,5 @@
-from virgil.core import distributions
+from virgil.core.models import get_packages
 
 
 def test_distributions():
-    assert distributions.get_distributions()
+    assert get_packages()
