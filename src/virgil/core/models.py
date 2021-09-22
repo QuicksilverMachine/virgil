@@ -1,4 +1,18 @@
-from importlib.metadata import Distribution, MetadataPathFinder, PackageNotFoundError
+try:
+    from importlib.metadata import (  # type: ignore
+        Distribution,
+        MetadataPathFinder,
+        PackageNotFoundError,
+    )
+except ImportError:
+    # Compatibility for python older than 3.9
+    # noinspection PyProtectedMember
+    from importlib_metadata import (  # type: ignore
+        Distribution,
+        MetadataPathFinder,
+        PackageNotFoundError,
+    )
+
 from typing import List, Optional
 
 from virgil.config import Config
@@ -39,7 +53,7 @@ class Requirement:
 
     @property
     def id(self) -> str:
-        return self.name + self.version
+        return f"{self.name}{self.version}" if self.version != Config.any_version else self.name
 
     @property
     def package(self) -> Optional[Package]:
@@ -63,21 +77,21 @@ class Requirement:
 
 
 def get_packages() -> List[Package]:
+    # TODO: MetadataPathFinder can accept context in the form of a search path
+    #   this could be expanded to allow specifying a virtualenv to check
     packages = [
-        # TODO: MetadataPathFinder can accept context in the form of a search path
-        #   this could be expanded to allow specifying a virtualenv to check
-        Package(distribution=d)
-        for d in MetadataPathFinder.find_distributions()
+        Package(distribution=distribution)
+        # MetadataPathFinder is instantiated for compatibility with older python versions
+        for distribution in MetadataPathFinder().find_distributions()
     ]
-    return [package for package in packages if package.name not in Config.ignore_list]
+    return sorted([package for package in packages if package.name], key=lambda p: p.id.lower())
 
 
 def get_flat_requirements(packages: List[Package]) -> List[Requirement]:
     result: List[Requirement] = []
     for package in packages:
-        if package.name not in Config.ignore_list:
-            for requirement in package.requirements:
-                # Ignore already added requirements
-                if requirement.id not in [r.id for r in result]:
-                    result.append(requirement)
-    return sorted(result, key=lambda x: x.id)
+        for requirement in package.requirements:
+            # Ignore already added requirements
+            if requirement.id not in [r.id for r in result]:
+                result.append(requirement)
+    return sorted(result, key=lambda r: r.id.lower())
