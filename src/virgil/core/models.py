@@ -1,3 +1,5 @@
+import subprocess
+
 try:
     from importlib.metadata import (  # type: ignore
         Distribution,
@@ -77,17 +79,25 @@ class Requirement:
 
 
 def get_packages() -> List[Package]:
-    # Get site packages path if it's specified,
-    # this will allow virgil to check dependencies of any environment
-    context = (
-        MetadataPathFinder.Context(path=list(Config.site_packages))
-        if Config.site_packages
-        else MetadataPathFinder.Context()
-    )
+    # Get site packages path by using user's python binary,
+    # this will allow virgil to check dependencies of user's
+    # environment when it's installed globally
+    site_packages = [
+        subprocess.check_output(["python3", "-c", "import site;print(site.getsitepackages()[0])"])
+        .decode()
+        .strip()
+    ]
+
     packages = [
         Package(distribution=distribution)
         # MetadataPathFinder is instantiated for compatibility with older python versions
-        for distribution in MetadataPathFinder().find_distributions(context=context)
+        for distribution in MetadataPathFinder().find_distributions(
+            context=(
+                MetadataPathFinder.Context(path=site_packages)
+                if site_packages
+                else MetadataPathFinder.Context()
+            )
+        )
     ]
     return sorted([package for package in packages if package.name], key=lambda p: p.id.lower())
 

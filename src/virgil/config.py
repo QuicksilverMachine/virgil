@@ -15,7 +15,6 @@ class Config:
 
     SECTION = "virgil"
 
-    DEFAULT_SITE_PACKAGES = sys.path
     DEFAULT_PARSER = "pip"
     DEFAULT_ANY_VERSION = "Any"
     DEFAULT_CHECKS: List[str] = []
@@ -32,7 +31,6 @@ class Config:
     DEFAULT_REQUIREMENTS_FILES = ["requirements.txt"]
     DEFAULT_LOCK_FILES = ["requirements.lock"]
 
-    site_packages = DEFAULT_SITE_PACKAGES
     parser = DEFAULT_PARSER
     any_version = DEFAULT_ANY_VERSION
     checks = DEFAULT_CHECKS
@@ -75,9 +73,6 @@ class Config:
                 parser.read(config_file)
 
                 if parser.has_section(cls.SECTION):
-                    cls.site_packages = cls.get_list(
-                        parser, cls.SECTION, "site_packages", cls.site_packages
-                    )
                     cls.parser = cls.get_option(parser, cls.SECTION, "parser", cls.parser)
                     cls.any_version = cls.get_option(
                         parser, cls.SECTION, "any_version", cls.any_version
@@ -146,7 +141,6 @@ class Config:
                         "virgil",
                         OrderedDict(
                             (
-                                ("site_packages", cls.site_packages),
                                 ("parser", cls.parser),
                                 ("any_version", cls.any_version),
                                 ("checks", cls.checks),
