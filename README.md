@@ -1,6 +1,7 @@
 # Virgil
 
-[![PyPI version](https://badge.fury.io/py/virgil.svg)](https://badge.fury.io/py/virgil)
+[![PyPI version](https://img.shields.io/pypi/v/virgil?color=blue&label=pypi%20package)](https://pypi.org/project/virgil/)
+[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/QuicksilverMachine/virgil/blob/master/LICENSE)
 
 Virgil is a dependency management library
