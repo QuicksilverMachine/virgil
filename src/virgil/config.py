@@ -1,17 +1,21 @@
 import json
 import os
+import sys
 from collections import OrderedDict
-from configparser import ConfigParser
+from configparser import ConfigParser, ParsingError
 from copy import deepcopy
 from typing import Any, List
+
+from virgil.core.printer import Printer
 
 
 class Config:
     PARENT_DIR = os.path.abspath(os.getcwd())
-    CONFIG_FILE = os.path.join(PARENT_DIR, "setup.cfg")
+    CONFIG_FILES = [os.path.join(PARENT_DIR, ".virgil"), os.path.join(PARENT_DIR, "setup.cfg")]
 
     SECTION = "virgil"
 
+    DEFAULT_SITE_PACKAGES = sys.path
     DEFAULT_PARSER = "pip"
     DEFAULT_ANY_VERSION = "Any"
     DEFAULT_CHECKS: List[str] = []
@@ -28,6 +32,7 @@ class Config:
     DEFAULT_REQUIREMENTS_FILES = ["requirements.txt"]
     DEFAULT_LOCK_FILES = ["requirements.lock"]
 
+    site_packages = DEFAULT_SITE_PACKAGES
     parser = DEFAULT_PARSER
     any_version = DEFAULT_ANY_VERSION
     checks = DEFAULT_CHECKS
@@ -59,30 +64,45 @@ class Config:
         """Read and set configuration from file
         :return: None
         """
-        if not os.path.exists(cls.CONFIG_FILE):
-            # If config file does not exist use default config
-            return
 
-        parser = ConfigParser()
-        parser.read(cls.CONFIG_FILE)
+        for config_file in cls.CONFIG_FILES:
 
-        if parser.has_section(cls.SECTION):
-            cls.any_version = cls.get_option(parser, cls.SECTION, "any_version", cls.any_version)
-            cls.checks = cls.get_list(parser, cls.SECTION, "checks", cls.checks)
-            cls.ignore_list = cls.get_list(parser, cls.SECTION, "ignore_list", cls.ignore_list)
-            cls.lock_file_path = cls.get_option(
-                parser, cls.SECTION, "lock_file_path", cls.lock_file_path
-            )
-            cls.requirements_files = [
-                cls.absolute_path(file_)
-                for file_ in cls.get_list(
-                    parser, cls.SECTION, "requirements_files", cls.requirements_files
-                )
-            ]
-            cls.lock_files = [
-                cls.absolute_path(file_)
-                for file_ in cls.get_list(parser, cls.SECTION, "lock_files", cls.lock_files)
-            ]
+            if not os.path.exists(config_file):
+                continue
+
+            try:
+                parser = ConfigParser()
+                parser.read(config_file)
+
+                if parser.has_section(cls.SECTION):
+                    cls.site_packages = cls.get_list(
+                        parser, cls.SECTION, "site_packages", cls.site_packages
+                    )
+                    cls.parser = cls.get_option(parser, cls.SECTION, "parser", cls.parser)
+                    cls.any_version = cls.get_option(
+                        parser, cls.SECTION, "any_version", cls.any_version
+                    )
+                    cls.checks = cls.get_list(parser, cls.SECTION, "checks", cls.checks)
+                    cls.ignore_list = cls.get_list(
+                        parser, cls.SECTION, "ignore_list", cls.ignore_list
+                    )
+                    cls.lock_file_path = cls.get_option(
+                        parser, cls.SECTION, "lock_file_path", cls.lock_file_path
+                    )
+                    cls.requirements_files = [
+                        cls.absolute_path(file_)
+                        for file_ in cls.get_list(
+                            parser, cls.SECTION, "requirements_files", cls.requirements_files
+                        )
+                    ]
+                    cls.lock_files = [
+                        cls.absolute_path(file_)
+                        for file_ in cls.get_list(parser, cls.SECTION, "lock_files", cls.lock_files)
+                    ]
+            except ParsingError as e:
+                error = e.message.split("\n")[0]
+                Printer().error(f"Invalid configuration at {config_file}: {error}")
+                sys.exit()
 
     @staticmethod
     def get_option(parser: ConfigParser, section: str, option: str, default: Any) -> Any:
@@ -126,6 +146,8 @@ class Config:
                         "virgil",
                         OrderedDict(
                             (
+                                ("site_packages", cls.site_packages),
+                                ("parser", cls.parser),
                                 ("any_version", cls.any_version),
                                 ("checks", cls.checks),
                                 ("ignore_list", cls.ignore_list),

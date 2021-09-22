@@ -77,12 +77,17 @@ class Requirement:
 
 
 def get_packages() -> List[Package]:
-    # TODO: MetadataPathFinder can accept context in the form of a search path
-    #   this could be expanded to allow specifying a virtualenv to check
+    # Get site packages path if it's specified,
+    # this will allow virgil to check dependencies of any environment
+    context = (
+        MetadataPathFinder.Context(path=list(Config.site_packages))
+        if Config.site_packages
+        else MetadataPathFinder.Context()
+    )
     packages = [
         Package(distribution=distribution)
         # MetadataPathFinder is instantiated for compatibility with older python versions
-        for distribution in MetadataPathFinder().find_distributions()
+        for distribution in MetadataPathFinder().find_distributions(context=context)
     ]
     return sorted([package for package in packages if package.name], key=lambda p: p.id.lower())
 
