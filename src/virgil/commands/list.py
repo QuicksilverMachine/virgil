@@ -1,9 +1,11 @@
+from typing import Any
+
 from virgil.config import Config
 from virgil.core.models import get_flat_requirements, get_packages
 from virgil.core.printer import Printer
 
 
-def list_command(_):
+def list_command(_: Any) -> None:
     printer = Printer()
 
     printer.info("Installed packages\n")
