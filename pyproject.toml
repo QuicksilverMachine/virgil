@@ -36,9 +36,3 @@ disallow_untyped_calls = true
 disallow_subclassing_any = true
 disallow_incomplete_defs = true
 disallow_untyped_decorators = true
-
-# Multiple ignores need to exist
-# for older python compatibility
-[[tool.mypy.overrides]]
-module = "virgil.core.models"
-warn_unused_ignores = false
