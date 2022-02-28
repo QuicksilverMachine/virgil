@@ -26,6 +26,6 @@ def cli() -> None:
         # Print help if no arguments are passed
         parser.print_help()
     else:
-        # Otherwise run the command
+        # Otherwise, run the command
         args = parser.parse_args()
         args.func(args) if hasattr(args, "func") else parser.print_help()

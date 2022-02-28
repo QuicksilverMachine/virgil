@@ -1,20 +1,10 @@
 import subprocess
 
-try:
-    from importlib.metadata import (  # type: ignore
-        Distribution,
-        MetadataPathFinder,
-        PackageNotFoundError,
-    )
-except ImportError:
-    # Compatibility for python older than 3.9
-    # noinspection PyProtectedMember
-    from importlib_metadata import (  # type: ignore
-        Distribution,
-        MetadataPathFinder,
-        PackageNotFoundError,
-    )
-
+from importlib.metadata import (
+    Distribution,
+    MetadataPathFinder,
+    PackageNotFoundError,
+)
 from typing import List, Optional
 
 from virgil.config import Config
@@ -79,22 +69,14 @@ class Requirement:
 
 
 def get_packages() -> List[Package]:
-    # Get site packages path by using user's python binary,
-    # this will allow virgil to check dependencies of user's
-    # environment when it's installed globally
-    site_packages = [
-        subprocess.check_output(["python3", "-c", "import site;print(site.getsitepackages()[0])"])
-        .decode()
-        .strip()
-    ]
+    site_packages_paths = get_site_packages_path()
 
     packages = [
         Package(distribution=distribution)
-        # MetadataPathFinder is instantiated for compatibility with older python versions
-        for distribution in MetadataPathFinder().find_distributions(
+        for distribution in MetadataPathFinder.find_distributions(
             context=(
-                MetadataPathFinder.Context(path=site_packages)
-                if site_packages
+                MetadataPathFinder.Context(path=site_packages_paths)
+                if site_packages_paths
                 else MetadataPathFinder.Context()
             )
         )
@@ -110,3 +92,15 @@ def get_flat_requirements(packages: List[Package]) -> List[Requirement]:
             if requirement.id not in [r.id for r in result]:
                 result.append(requirement)
     return sorted(result, key=lambda r: r.id.lower())
+
+
+def get_site_packages_path() -> list[str]:
+    """Get site packages path by using user's python binary,
+    this will allow virgil to check dependencies of user's
+    environment when it's installed globally
+    """
+    return [
+        subprocess.check_output(["python3", "-c", "import site;print(site.getsitepackages()[0])"])
+        .decode()
+        .strip()
+    ]
